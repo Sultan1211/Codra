@@ -1,9 +1,73 @@
-import { WebSocketServer } from "ws";
+import { WebSocket, WebSocketServer } from "ws";
+import jwt from "jsonwebtoken";
+import { jwtSecret } from "@repo/common/common";
 
 const ws = new WebSocketServer({ port: 3003 });
 
-ws.on("connection", function connection(ws) {
-  ws.on("message", msg => {
-    ws.send("pong123: " + msg);
+interface UserObject {
+  userId: string;
+  ws: WebSocket;
+  rooms: string[];
+}
+const users: UserObject[] = [];
+
+function checkToken(token: string) {
+  try {
+    const decoded = jwt.verify(token, jwtSecret);
+    if (typeof decoded === "string") {
+      return;
+    }
+    if (!decoded || !decoded.userId) {
+      return;
+    }
+    return decoded.userId;
+  } catch (e) {
+    return null;
+  }
+}
+
+ws.on("connection", function connection(ws, request) {
+  const url = request.url;
+  if (!url) {
+    return;
+  }
+  const params = new URLSearchParams(url.split("?")[1]);
+  const token = params.get("token");
+  const userId = checkToken(token!);
+  if (userId == null) {
+    ws.close();
+    return null;
+  }
+
+  userId.push({
+    userId,
+    ws,
+    rooms:[]
+  })
+  ws.on("message", data => {
+    const parsedData = JSON.parse(data as unknown as string);
+    if (parsedData.type === "join_room") {
+      const user = users.find(user=> user.ws === ws)
+      if(!user){
+        return null
+      }
+      user.rooms.push(parsedData.roomId)
+    }
+    if(parsedData.type === "leave_room"){
+      const user = users.find(user=> user.ws === ws);
+      user?.rooms.filter(room=> room === parsedData.roomId)
+    }
+    if(parsedData.type  === "chat"){
+      const message = parsedData.message;
+      users.forEach(user=>{
+        if(user.rooms.includes(parsedData.roomId)){
+          user.ws.send(JSON.stringify({
+            type: "chat",
+            message,
+            roomId : parsedData.roomId
+          }))
+        }
+      })
+    }
   });
 });
