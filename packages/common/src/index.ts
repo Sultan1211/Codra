@@ -5,7 +5,7 @@ dotenv.config()
 export const jwtSecret = process.env.JWT_SECRET || ""
 
 export const userSkeleton = z.object({
-  username: z
+  email: z
     .string()
     .min(6)
     .regex(
@@ -27,3 +27,13 @@ export const userSkeleton = z.object({
       "Password must contain at least one letter, one number, and one special character",
     ),
 });
+
+
+export const SigninSchema = z.object({
+    username: z.string().min(3).max(20),
+    password: z.string(),
+})
+
+export const CreateRoomSchema = z.object({
+    name: z.string().min(3).max(20),
+})
