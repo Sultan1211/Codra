@@ -1,13 +1,13 @@
 import axios from "axios";
 import { HTTP_BACKEND } from "../config";
 
-interface shapeCo {
+export interface shapeCo {
   x: number;
   y: number;
   w: number;
   h: number;
 }
-type Shape = {
+export type Shape = {
   type: "rect";
   coordinates: shapeCo;
 };
