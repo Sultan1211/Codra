@@ -9,20 +9,24 @@ import {
   SigninSchema,
   userSkeleton,
 } from "@repo/common/common";
-import cors from "cors"
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
-app.use(cors())
+app.use(cors());
 app.post("/signup", async (req, res) => {
   const parsedData = userSkeleton.safeParse(req.body);
-  console.log(parsedData,"data")
+  console.log(parsedData, "data");
   if (!parsedData.success) {
+    let warnings = []
+    warnings =  parsedData.error.issues.map((e)=>{
+       return e.message
+     })
     console.log(parsedData.error);
-    res.json({
+    return res.json({
       message: "Incorrect inputs",
+      warning: warnings,
     });
-    return;
   }
   try {
     const user = await prisma.user.create({
@@ -81,7 +85,7 @@ app.post("/signin", async (req, res) => {
 
 app.post("/room", authMW, async (req, res) => {
   const parsedData = CreateRoomSchema.safeParse(req.body);
-  console.log("reaching in room creation : ",parsedData)
+  console.log("reaching in room creation : ", parsedData);
   if (!parsedData.success) {
     res.json({
       message: "Incorrect inputs",
@@ -96,7 +100,7 @@ app.post("/room", authMW, async (req, res) => {
   try {
     const room = await prisma.room.create({
       data: {
-        slug: parsedData.data.name,
+        slug: parsedData.data.slug,
         adminId: userId,
       },
     });

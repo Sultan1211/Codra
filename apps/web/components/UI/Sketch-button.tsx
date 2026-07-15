@@ -4,7 +4,7 @@ function SketchButton({
   children,
   onClick,
 }: {
-  children: string;
+  children: string | ReactElement
   onClick?: () => void;
 }) {
   return (

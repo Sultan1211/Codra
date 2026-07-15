@@ -1,23 +1,42 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 
 import { cn } from "../../lib/utils";
-import {
-  IconBrandGithub,
-  IconBrandGoogle,
-  IconBrandOnlyfans,
-} from "@tabler/icons-react";
 import { Label } from "@radix-ui/react-label";
 import { Input } from "../Input";
+import axios from "axios";
+import { HTTP_BACKEND } from "../../config";
+import { useRouter } from "next/navigation";
 
 export default function SignupFormDemo() {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const router = useRouter();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted");
+    console.log("values: ", {
+      email,
+      name,
+      password,
+    });
+   
+    const res = await axios.post(`${HTTP_BACKEND}/signup`, {
+      email,
+      name,
+      password,
+    });
+    if (res.data.warning) {
+      console.log(res.data.warning);
+      alert(res.data.warning);
+    }
+    if (res.data && !res.data.warning) {
+      router.push("/#");
+    }
+    
   };
   return (
     <div className="w-full max-w-lg rounded-2xl bg-white/20 p-8 backdrop-blur-sm shadow-xl">
-     
       <h2 className="text-xl font-bold text-neutral-800 ">Welcome to CoDraw</h2>
       {/* <p className="mt-2 max-w-sm text-sm text-neutral-600 ">
         Login to aceternity if you can because we don&apos;t have a login flow
@@ -26,8 +45,13 @@ export default function SignupFormDemo() {
       <form className="my-8" onSubmit={handleSubmit}>
         <div className="mb-4 flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-2">
           <LabelInputContainer>
-            <Label htmlFor="firstname">Name</Label>
-            <Input id="firstname" placeholder="Tyler" type="text" />
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              placeholder="Tyler"
+              type="text"
+              onChange={e => setName(e.target.value)}
+            />
           </LabelInputContainer>
           {/* <LabelInputContainer>
             <Label htmlFor="lastname">Last name</Label>
@@ -36,11 +60,21 @@ export default function SignupFormDemo() {
         </div>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Email Address</Label>
-          <Input id="email" placeholder="projectmayhem@fc.com" type="email" />
+          <Input
+            id="email"
+            placeholder="projectmayhem@fc.com"
+            type="email"
+            onChange={e => setEmail(e.target.value)}
+          />
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" placeholder="••••••••" type="password" />
+          <Input
+            id="password"
+            placeholder="••••••••"
+            type="password"
+            onChange={e => setPassword(e.target.value)}
+          />
         </LabelInputContainer>
         {/* <LabelInputContainer className="mb-8">
           <Label htmlFor="twitterpassword">Your twitter password</Label>
@@ -92,7 +126,7 @@ export default function SignupFormDemo() {
   );
 }
 
-const BottomGradient = () => {
+export const BottomGradient = () => {
   return (
     <>
       <span className="absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100" />
@@ -101,7 +135,7 @@ const BottomGradient = () => {
   );
 };
 
-const LabelInputContainer = ({
+export const LabelInputContainer = ({
   children,
   className,
 }: {

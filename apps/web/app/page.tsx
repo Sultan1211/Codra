@@ -11,24 +11,27 @@ import { WorldMapDemo } from "../components/UI/WorldMap";
 import { NoiseBackground } from "../components/UI/NoiseBackground";
 import { NoiseBackgroundDemo } from "../components/UI/NoiseBgDemo";
 import { useRouter } from "next/navigation";
+import { CtxProvider } from "../lib/context";
 
 export default function Home() {
-  const router = useRouter()
+  const router = useRouter();
   // const store = useSyncDemo({ roomId: "hi there" });
   return (
-    <div className="relative h-screen w-screen">
-      {/* <Tldraw store={store}></Tldraw> */}
-      <NavbarDemo />
-      <WorldMapDemo />
-      <div className="relative z-10 h-full w-full">
-        <div className="absolute inset-0 top-44 flex flex-col items-center gap-8 md:gap-12 xl:gap-24">
-          <div>
-          <CanvasTextDemo />
-          <EncryptedTextDemoSecond />
+    <CtxProvider>
+      <div className="relative h-screen w-screen">
+        {/* <Tldraw store={store}></Tldraw> */}
+        <NavbarDemo />
+        <WorldMapDemo />
+        <div className="relative z-10 h-full w-full">
+          <div className="absolute inset-0 top-44 flex flex-col items-center gap-8 md:gap-12 xl:gap-24">
+            <div>
+              <CanvasTextDemo />
+              <EncryptedTextDemoSecond />
+            </div>
+            <NoiseBackgroundDemo onClick={() => router.push("/demo")} />
           </div>
-          <NoiseBackgroundDemo onClick={()=> router.push("/demo")}/>
         </div>
       </div>
-    </div>
+    </CtxProvider>
   );
 }

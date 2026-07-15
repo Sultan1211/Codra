@@ -237,9 +237,9 @@ export const NavbarLogo = () => {
     >
       <img src="/codrawdesign.svg" alt="logo" width={30} height={30} />
       <span className="text-lg tracking-tight text-black">
-  <span className="font-bold">Co</span>
-  <span className="font-medium text-neutral-500">Draw</span>
-</span>
+        <span className="font-bold text-blue-600">Co</span>
+        <span className="font-medium text-neutral-500">Draw</span>
+      </span>
     </a>
   );
 };

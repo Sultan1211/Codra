@@ -10,42 +10,84 @@ import {
   MobileNavMenu,
   MobileNavHeader,
 } from "./Navbar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SketchButton from "./Sketch-button";
 import { useRouter } from "next/navigation";
+import { useLoginContext } from "../../lib/context";
+import {
+  IconFolderOpen,
+  IconFolderOpenFilled,
+  IconPlus,
+} from "@tabler/icons-react";
+import RoomsModal from "./RoomsModal";
+import { HTTP_BACKEND } from "../../config";
+import axios from "axios";
 
 export function NavbarDemo() {
-    const router = useRouter()
-//   const navItems = [
-//     {
-//       name: "Features",
-//       link: "#features",
-//     },
-//     {
-//       name: "Pricing",
-//       link: "#pricing",
-//     },
-//     {
-//       name: "Contact",
-//       link: "#contact",
-//     },
-//   ];
+  const router = useRouter();
+  const { isLoggedIn, onRoomCreate } = useLoginContext();
+  console.log(isLoggedIn, "is it ");
 
+  useEffect(() => {}, []);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [rooms, setRooms] = useState([{ id: "1", slug: "hi-there" }]);
+
+  async function handleCreate(slug: string) {
+    const token = localStorage.getItem("token");
+    const res = await axios.post(
+      `${HTTP_BACKEND}/room`,
+      { slug },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    onRoomCreate(slug);
+    const newRoom = { id: crypto.randomUUID(), slug: slug };
+    setRooms(prev => [...prev, newRoom]);
+  }
+  const handleSelectRoom = (room: { id: string; slug: string }) => {
+    setIsModalOpen(false);
+    router.push(`/canvas/${room.slug}`);
+  };
 
   return (
     <div className="relative w-full">
-      <Navbar >
+      <Navbar>
         {/* Desktop Navigation */}
-        <NavBody >
+        <NavBody>
           <NavbarLogo />
-          {/* <NavItems items={navItems} /> */}
-          <div className="flex items-center gap-4">
-            {/* <NavbarButton variant="secondary">Login</NavbarButton>
-            <NavbarButton variant="primary">Sign Up</NavbarButton> */}
-             <SketchButton>Login</SketchButton>
-             <SketchButton onClick={()=> router.push("/signup")} >Sign Up</SketchButton>
-          </div>
+          {isLoggedIn ? (
+            <div className="flex items-center gap-4">
+              <SketchButton onClick={() => setIsModalOpen(true)}>
+                <div className="flex items-center gap-2">
+                  Create Room
+                  <span>
+                    <IconPlus />
+                  </span>
+                </div>
+              </SketchButton>
+              <SketchButton onClick={() => setIsModalOpen(true)}>
+                <div className="flex items-center gap-2">
+                  <span>
+                    <IconFolderOpen />
+                  </span>
+                  My Rooms
+                </div>
+              </SketchButton>
+            </div>
+          ) : (
+            <div className="flex items-center gap-4">
+              <SketchButton onClick={() => router.push("/signin")}>
+                Login
+              </SketchButton>
+              <SketchButton onClick={() => router.push("/signup")}>
+                Sign Up
+              </SketchButton>
+            </div>
+          )}
         </NavBody>
 
         {/* Mobile Navigation */}
@@ -62,37 +104,22 @@ export function NavbarDemo() {
             isOpen={isMobileMenuOpen}
             onClose={() => setIsMobileMenuOpen(false)}
           >
-            {/* {navItems.map((item, idx) => (
-              <a
-                key={`mobile-link-${idx}`}
-                href={item.link}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="relative text-neutral-600 dark:text-neutral-300"
-              >
-                <span className="block">{item.name}</span>
-              </a>
-            ))} */}
             <div className="flex w-full flex-col gap-4">
-              {/* <NavbarButton
-                onClick={() => setIsMobileMenuOpen(false)}
-                variant="primary"
-                className="w-full"
-              >
-                Login
-              </NavbarButton>
-              <NavbarButton
-                onClick={() => setIsMobileMenuOpen(false)}
-                variant="primary"
-                className="w-full"
-              >
-                Book a call
-              </NavbarButton> */}
               <SketchButton>Login</SketchButton>
             </div>
           </MobileNavMenu>
         </MobileNav>
       </Navbar>
-      
+
+      {isModalOpen && (
+        <RoomsModal
+          isOpen={isModalOpen}
+          rooms={rooms}
+          onCreateRoom={handleCreate}
+          onClose={() => setIsModalOpen(false)}
+          onSelectRoom={handleSelectRoom}
+        />
+      )}
 
       {/* Navbar */}
     </div>

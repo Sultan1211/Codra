@@ -1,16 +1,12 @@
 import React from "react";
 import { WorldMapDemo } from "../../components/UI/WorldMap";
-import SignupFormDemo from "../../components/UI/SignupForm";
+import SignIn from "../../components/UI/SignIn";
 import { GridBackgroundDemo } from "../../components/UI/GridBg";
 
 function page() {
   return (
     <div className="relative h-screen w-screen ">
-      <GridBackgroundDemo isLogin={false} />
-
-      {/* <div className='relative z-10 h-full w-full flex items-center justify-center'>
-        <SignupFormDemo/>
-      </div> */}
+      <GridBackgroundDemo isLogin />
     </div>
   );
 }
