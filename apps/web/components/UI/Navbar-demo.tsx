@@ -23,33 +23,55 @@ import RoomsModal from "./RoomsModal";
 import { HTTP_BACKEND } from "../../config";
 import axios from "axios";
 
+interface RoomType {
+  id: string;
+  slug: string;
+}
+
 export function NavbarDemo() {
   const router = useRouter();
   const { isLoggedIn, onRoomCreate } = useLoginContext();
   console.log(isLoggedIn, "is it ");
 
-  useEffect(() => {}, []);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [rooms, setRooms] = useState([{ id: "1", slug: "hi-there" }]);
+  const [rooms, setRooms] = useState<RoomType[]>([]);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const res = await axios.get(`${HTTP_BACKEND}/room`);
+        console.log(res.data, "Data from res");
+        const cleanRooms: RoomType[] = res.data.rooms.map((r: RoomType) => ({
+          id: r.id,
+          slug: r.slug,
+        }));
+        setRooms(cleanRooms);
+      } catch (err) {
+        console.error("Failed to fetch rooms:", err);
+      }
+    };
+    fetchRooms();
+  }, []);
 
   async function handleCreate(slug: string) {
     const token = localStorage.getItem("token");
-    const res = await axios.post(
-      `${HTTP_BACKEND}/room`,
-      { slug },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
-    onRoomCreate(slug);
-    const newRoom = { id: crypto.randomUUID(), slug: slug };
-    setRooms(prev => [...prev, newRoom]);
+    try {
+      await axios.post(
+        `${HTTP_BACKEND}/room`,
+        { slug },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      onRoomCreate(slug);
+      const newRoom: RoomType = { id: crypto.randomUUID(), slug };
+      setRooms(prev => [...prev, newRoom]);
+    } catch (err) {
+      console.error("Failed to create room:", err);
+    }
   }
   const handleSelectRoom = (room: { id: string; slug: string }) => {
     setIsModalOpen(false);
+    console.log(room, "in the function");
     router.push(`/canvas/${room.slug}`);
   };
 

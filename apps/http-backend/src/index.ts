@@ -10,77 +10,63 @@ import {
   userSkeleton,
 } from "@repo/common/common";
 import cors from "cors";
+import bcrypt from "bcrypt";
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 app.post("/signup", async (req, res) => {
   const parsedData = userSkeleton.safeParse(req.body);
-  console.log(parsedData, "data");
+
   if (!parsedData.success) {
-    let warnings = []
-    warnings =  parsedData.error.issues.map((e)=>{
-       return e.message
-     })
-    console.log(parsedData.error);
-    return res.json({
-      message: "Incorrect inputs",
-      warning: warnings,
-    });
+    const warnings = parsedData.error.issues.map(e => e.message);
+    return res.json({ message: "Incorrect inputs", warning: warnings });
   }
+
   try {
+    const hashedPassword = await bcrypt.hash(parsedData.data.password, 10);
     const user = await prisma.user.create({
       data: {
-        email: parsedData.data?.email,
-        // TODO: Hash the pw
-        password: parsedData.data.password,
+        email: parsedData.data.email,
+        password: hashedPassword,
         name: parsedData.data.name,
       },
     });
-    res.json({
-      userId: user.id,
-    });
+    res.json({ userId: user.id });
   } catch (e) {
-    res.status(411).json({
-      message: "User already exists with this username",
-    });
+    res.status(411).json({ message: "User already exists with this username" });
   }
 });
 
 app.post("/signin", async (req, res) => {
-  const parsedData = SigninSchema.safeParse(req.body);
-  if (!parsedData.success) {
-    res.json({
-      message: "Incorrect inputs",
+  try {
+    const parsedData = SigninSchema.safeParse(req.body);
+    if (!parsedData.success) {
+      return res.json({ message: "Incorrect inputs" });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: { email: parsedData.data.username },
     });
-    return;
+
+    if (!user?.password) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    const isMatch = await bcrypt.compare(
+      parsedData.data.password,
+      user.password,
+    );
+    if (!isMatch) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!);
+    res.json({ token });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "Something went wrong" });
   }
-
-  // TODO: Compare the hashed pws here
-  const user = await prisma.user.findFirst({
-    where: {
-      email: parsedData.data.username,
-      password: parsedData.data.password,
-    },
-  });
-
-  if (!user) {
-    res.status(403).json({
-      message: "Not authorized",
-    });
-    return;
-  }
-
-  const token = jwt.sign(
-    {
-      userId: user?.id,
-    },
-    process?.env["jwtsecret"]!,
-  );
-
-  res.json({
-    token,
-  });
 });
 
 app.post("/room", authMW, async (req, res) => {
@@ -92,10 +78,9 @@ app.post("/room", authMW, async (req, res) => {
     });
     return;
   }
-  // @ts-ignore: TODO: Fix this
   const userId = req.userId;
   if (!userId) {
-    return;
+    return res.status(401).json({ message: "Not authorized" });
   }
   try {
     const room = await prisma.room.create({
@@ -113,6 +98,18 @@ app.post("/room", authMW, async (req, res) => {
       message: "Room already exists with this name",
     });
   }
+});
+
+app.get("/room", authMW, async (req, res) => {
+  const userId = req.userId;
+  const rooms = await prisma.room.findMany({
+    where: {
+      adminId: userId,
+    },
+  });
+  res.status(200).json({
+    rooms,
+  });
 });
 
 app.get("/shapes/:roomId", async (req, res) => {
