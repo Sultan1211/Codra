@@ -14,7 +14,8 @@ import bcrypt from "bcrypt";
 
 const app = express();
 app.use(express.json());
-app.use(cors({ origin: process.env.FRONTEND_URL }));
+app.use(cors({ origin: process.env.FRONTEND_URL  }));
+// app.use(cors());
 app.post("/signup", async (req, res) => {
   const parsedData = userSkeleton.safeParse(req.body);
 

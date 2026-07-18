@@ -31,15 +31,18 @@ interface RoomType {
 export function NavbarDemo() {
   const router = useRouter();
   const { isLoggedIn, onRoomCreate } = useLoginContext();
-
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rooms, setRooms] = useState<RoomType[]>([]);
 
   useEffect(() => {
+    if (!isLoggedIn) return;
     const fetchRooms = async () => {
       try {
-        const res = await axios.get(`${HTTP_BACKEND}/room`);
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`${HTTP_BACKEND}/room`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const cleanRooms: RoomType[] = res.data.rooms.map((r: RoomType) => ({
           id: r.id,
           slug: r.slug,
@@ -49,8 +52,9 @@ export function NavbarDemo() {
         console.error("Failed to fetch rooms:", err);
       }
     };
+
     fetchRooms();
-  }, []);
+  }, [isLoggedIn]);
 
   async function handleCreate(slug: string) {
     const token = localStorage.getItem("token");
