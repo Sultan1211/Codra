@@ -30,7 +30,6 @@ function checkToken(token: string) {
 }
 
 ws.on("connection", function connection(ws, request) {
-  console.log("reaching here");
   const url = request.url;
   if (!url) {
     return;
@@ -50,7 +49,6 @@ ws.on("connection", function connection(ws, request) {
   });
   ws.on("message", async data => {
     const parsedData = JSON.parse(data as unknown as string);
-    console.log(parsedData, "dataaaaaaaa from wsssssssssssss");
     if (parsedData.type === "join_room") {
       const user = users.find(user => user.ws === ws);
       if (!user) {
@@ -72,7 +70,6 @@ ws.on("connection", function connection(ws, request) {
           userId,
         },
       });
-      console.log(message, "messag");
       users.forEach(user => {
         if (user.rooms.includes(parsedData.roomId)) {
           user.ws.send(

@@ -4,7 +4,6 @@ import { initDraw } from "../draw";
 import { WS_URL } from "../config";
 
 function Canvas({ roomId }: { roomId: string }) {
-  console.log(roomId,"roommmmmmmmmmmmmmmmmIddddddddddddddddd")
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 

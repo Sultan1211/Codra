@@ -15,11 +15,7 @@ export default function SignupFormDemo() {
   const router = useRouter();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("values: ", {
-      email,
-      name,
-      password,
-    });
+   
 
     const res = await axios.post(`${HTTP_BACKEND}/signup`, {
       email,
@@ -27,7 +23,6 @@ export default function SignupFormDemo() {
       password,
     });
     if (res.data.warning) {
-      console.log(res.data.warning);
       alert(res.data.warning);
     }
     if (res.data && !res.data.warning) {

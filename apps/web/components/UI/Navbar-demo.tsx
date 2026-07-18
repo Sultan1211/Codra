@@ -31,7 +31,6 @@ interface RoomType {
 export function NavbarDemo() {
   const router = useRouter();
   const { isLoggedIn, onRoomCreate } = useLoginContext();
-  console.log(isLoggedIn, "is it ");
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,7 +40,6 @@ export function NavbarDemo() {
     const fetchRooms = async () => {
       try {
         const res = await axios.get(`${HTTP_BACKEND}/room`);
-        console.log(res.data, "Data from res");
         const cleanRooms: RoomType[] = res.data.rooms.map((r: RoomType) => ({
           id: r.id,
           slug: r.slug,
@@ -71,7 +69,6 @@ export function NavbarDemo() {
   }
   const handleSelectRoom = (room: { id: string; slug: string }) => {
     setIsModalOpen(false);
-    console.log(room, "in the function");
     router.push(`/canvas/${room.slug}`);
   };
 

@@ -54,7 +54,6 @@ export async function initDraw(
     clicked = false;
     const width = e.clientX - startX;
     const height = e.clientY - startY;
-    console.log(startX, startY, e.clientX - startX, e.clientY - startY);
     const co = {
       x: startX,
       y: startY,
@@ -94,7 +93,6 @@ function clrCtx(
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "rgba(0,0,0)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-console.log(existingShapes,"shapesssssssssssssssssssssssssssssssssssssssssss122")
   existingShapes.map(shape => {
     const coordinates = shape.coordinates;
     ctx.strokeStyle = "white";

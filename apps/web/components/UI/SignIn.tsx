@@ -20,14 +20,10 @@ function SignIn() {
       username,
       password,
     });
-    console.log(res.data, "dataaaaa");
     const token = res.data.token;
-    console.log("extracted token:", token); // <-- and this
 
     localStorage.setItem("token", token);
-    console.log("stored?", localStorage.getItem("token"));
     userLogin();
-    console.log(isLoggedIn, token, "seeee");
     router.push("/#");
   };
   return (

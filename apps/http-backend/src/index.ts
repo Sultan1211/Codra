@@ -14,7 +14,7 @@ import bcrypt from "bcrypt";
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: process.env.FRONTEND_URL }));
 app.post("/signup", async (req, res) => {
   const parsedData = userSkeleton.safeParse(req.body);
 
@@ -71,7 +71,6 @@ app.post("/signin", async (req, res) => {
 
 app.post("/room", authMW, async (req, res) => {
   const parsedData = CreateRoomSchema.safeParse(req.body);
-  console.log("reaching in room creation : ", parsedData);
   if (!parsedData.success) {
     res.json({
       message: "Incorrect inputs",
@@ -115,7 +114,6 @@ app.get("/room", authMW, async (req, res) => {
 app.get("/shapes/:roomId", async (req, res) => {
   try {
     const roomId = Number(req.params.roomId);
-    console.log(req.params.roomId);
     const messages = await prisma.chat.findMany({
       where: {
         roomId: Number(roomId),
