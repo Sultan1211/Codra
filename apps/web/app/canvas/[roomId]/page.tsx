@@ -22,11 +22,11 @@ export default function MainCanvas({
       <Tldraw store={store}></Tldraw>
       <SketchButton
         onClick={() => router.push("/")}
-        className="fixed bottom-3 left-18 z-[1000]"
+        className="fixed top-3 left-3 z-[1000] sm:bottom-3 sm:top-auto sm:left-18"
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <IconHome size={16} />
-          Home
+          <span className="hidden sm:inline">Home</span>
         </div>
       </SketchButton>
     </div>

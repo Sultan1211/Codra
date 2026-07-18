@@ -75,6 +75,11 @@ export function NavbarDemo() {
     router.push(`/canvas/${room.slug}`);
   };
 
+  const openRoomsModal = () => {
+    setIsModalOpen(true);
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <div className="relative w-full">
       <Navbar>
@@ -126,8 +131,48 @@ export function NavbarDemo() {
             isOpen={isMobileMenuOpen}
             onClose={() => setIsMobileMenuOpen(false)}
           >
-            <div className="flex w-full flex-col gap-4">
-              <SketchButton>Login</SketchButton>
+            <div className="flex w-full flex-col gap-3 sm:gap-4">
+              {isLoggedIn ? (
+                <>
+                  <SketchButton onClick={openRoomsModal} className="w-full">
+                    <div className="flex items-center justify-center gap-2">
+                      Create Room
+                      <span>
+                        <IconPlus />
+                      </span>
+                    </div>
+                  </SketchButton>
+                  <SketchButton onClick={openRoomsModal} className="w-full">
+                    <div className="flex items-center justify-center gap-2">
+                      <span>
+                        <IconFolderOpen />
+                      </span>
+                      My Rooms
+                    </div>
+                  </SketchButton>
+                </>
+              ) : (
+                <>
+                  <SketchButton
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      router.push("/signin");
+                    }}
+                    className="w-full"
+                  >
+                    Login
+                  </SketchButton>
+                  <SketchButton
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      router.push("/signup");
+                    }}
+                    className="w-full"
+                  >
+                    Sign Up
+                  </SketchButton>
+                </>
+              )}
             </div>
           </MobileNavMenu>
         </MobileNav>

@@ -1,6 +1,4 @@
 import React from "react";
-import { WorldMapDemo } from "../../components/UI/WorldMap";
-import SignupFormDemo from "../../components/UI/SignupForm";
 import { GridBackgroundDemo } from "../../components/UI/GridBg";
 
 function page() {
